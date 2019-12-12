@@ -11,7 +11,5 @@ configuration:
       type: string
     ssmkey:
       type: string
-    varname:
-      type: string
   required:
     - ssmkey
