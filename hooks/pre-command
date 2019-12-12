@@ -87,6 +87,7 @@ ssm_get_parameter() {
     response=$(aws ssm get-parameters --region $awsregion --names $ssmkey --with-decryption)
     ssmValue=$(echo "$response" | jq -r '.Parameters[].Value')
     #echo "--- :ssm: SSM value ${ssmValue}"
+    echo "--- custom var? ${customvarname} ---"
     if [[ -z $customvarname ]]; then
       export $ssmkey=$ssmValue
     else
