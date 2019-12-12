@@ -22,7 +22,7 @@ main() {
 
   local awsregion=${AWS_DEFAULT_REGION:-ap-southeast-2}
   local ssmkey="${BUILDKITE_PLUGIN_SSM_SSMKEY:-}"
-  local customvarname="${BUILKITE_PLUGIN_SSM_CUSTOM_VARIABLE_NAME:-}"
+  local customvarname="${BUILKITE_PLUGIN_SSM_VARNAME:-}"
   ssm_get_parameter "$ssmkey" "$awsregion" "$customvarname"
 
 }
