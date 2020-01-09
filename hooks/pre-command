@@ -22,7 +22,8 @@ main() {
 
   local awsregion=${AWS_DEFAULT_REGION:-ap-southeast-2}
   local ssmkey="${BUILDKITE_PLUGIN_SSM_SSMKEY:-}"
-  ssm_get_parameter "$ssmkey" "$awsregion"
+  local exportname="${BUILDKITE_PLUGIN_SSM_EXPORTNAME:-}"
+  ssm_get_parameter "$ssmkey" "$awsregion" "$exportname"
 
 }
 
@@ -81,11 +82,21 @@ credentials_json_to_shell_exports() {
 ssm_get_parameter() {
     local ssmkey="$1"
     local awsregion="$2"
+    local exportname="$3"
     echo "--- :ssm: Get SSM ${ssmkey} in region ${awsregion}"
     response=$(aws ssm get-parameters --region $awsregion --names "/buildkite/$ssmkey" --with-decryption)
     ssmValue=$(echo "$response" | jq -r '.Parameters[].Value')
     #echo "--- :ssm: SSM value ${ssmValue}"
-    export $ssmkey=$ssmValue
+      if [[ ! -z ${3:-} ]]; then
+        log_info "Found kafka password on the command line."
+        kafka_password=$3
+    if [[ ! -z ${exportname:-} ]]; then
+        echo "Using custom export name specified ${exportname}"
+        export $exportname=$ssmValue
+    else
+        echo "Using ssm key name to export variable ${ssmkey}"
+        export $ssmkey=$ssmValue
+    fi
 }
 
 main
