@@ -83,9 +83,8 @@ ssm_get_parameter() {
     local ssmkey="$1"
     local awsregion="$2"
     local exportname="$3"
-    echo "--- :ssm: Get SSM ${ssmkey} in region ${awsregion}"
-    response=$(aws ssm get-parameters --region "$awsregion" --names "/buildkite/$ssmkey" --with-decryption)
-    ssmValue=$(echo "$response" | jq -r '.Parameters[].Value')
+    echo "--- :ssm: Get SSM /buildkite/${ssmkey} in region ${awsregion}"
+    ssmValue=$(aws ssm get-parameter --region "$awsregion" --name "/buildkite/$ssmkey" --with-decryption --query Parameter.Value --output text)
     #echo "--- :ssm: SSM value ${ssmValue}"
 
     if [[ -n "${exportname:-}" ]]; then
