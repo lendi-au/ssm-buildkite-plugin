@@ -89,7 +89,7 @@ ssm_get_parameter() {
     #echo "--- :ssm: SSM value ${ssmValue}"
 
     # fail fast
-    if [[ $rc -eq 0 ]]; then
+    if [[ ! $rc -eq 0 ]]; then
         echo "Command failed: The parameter '/buildkite/$ssmkey' does not exist or another error occurred."
         exit 1
     fi
