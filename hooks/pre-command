@@ -85,7 +85,14 @@ ssm_get_parameter() {
     local exportname="$3"
     echo "--- :ssm: Get SSM /buildkite/${ssmkey} in region ${awsregion}"
     ssmValue=$(aws ssm get-parameter --region "$awsregion" --name "/buildkite/$ssmkey" --with-decryption --query Parameter.Value --output text)
+    rc=$?
     #echo "--- :ssm: SSM value ${ssmValue}"
+
+    # fail fast
+    if [[ ! $rc -eq 0 ]]; then
+        echo "Command failed: The parameter '/buildkite/$ssmkey' does not exist or another error occurred."
+        exit 1
+    fi
 
     if [[ -n "${exportname:-}" ]]; then
         echo "Using custom export name specified ${exportname}"
