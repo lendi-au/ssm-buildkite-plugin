@@ -10,14 +10,24 @@ main() {
 
   if [[ -n $role && -n $build ]]; then
     echo "~~~ Assuming IAM role $role ..."
-    eval "$(assume_role_credentials "$role" "$build" | credentials_json_to_shell_exports)"
+    output="$(assume_role_credentials "$role" "$build" | credentials_json_to_shell_exports)"
+    rc="$?"
+    if [ ! "$rc" -eq 0 ]; then
+        echo "Error: failed to assume role: $rc"
+        exit 1
+    fi
+
+    eval "$output"
 
     echo "Exported session credentials:"
     echo "  AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
     echo "  AWS_SECRET_ACCESS_KEY=(${#AWS_SECRET_ACCESS_KEY} chars)"
     echo "  AWS_SESSION_TOKEN=(${#AWS_SESSION_TOKEN} chars)"
   else
-    echo "Missing BUILDKITE_PLUGIN_SSM_ASSUME_ROLE_ARN or BUILDKITE_BUILD_NUMBER"
+    if [ -n "$role" ]; then
+        echo "Error: both BUILDKITE_PLUGIN_SSM_ASSUME_ROLE_ARN and BUILDKITE_BUILD_NUMBER are required to assume role"
+        exit 1
+    fi
   fi
 
   local awsregion=${AWS_DEFAULT_REGION:-ap-southeast-2}
